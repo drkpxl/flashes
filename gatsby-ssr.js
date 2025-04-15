@@ -1,12 +1,23 @@
-/**
- * Implement Gatsby's SSR (Server Side Rendering) APIs in this file.
- *
- * See: https://www.gatsbyjs.com/docs/reference/config-files/gatsby-ssr/
- */
+// gatsby-ssr.js
+import React from 'react';
 
-/**
- * @type {import('gatsby').GatsbySSR['onRenderBody']}
- */
-exports.onRenderBody = ({ setHtmlAttributes }) => {
-  setHtmlAttributes({ lang: `en` })
-}
+export const onRenderBody = ({ setHeadComponents }) => {
+  setHeadComponents([
+    <link
+      key="google-fonts"
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />,
+    <link
+      key="google-fonts-2"
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossOrigin="true"
+    />,
+    <link
+      key="google-fonts-css"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..700;1,500..700&display=swap"
+      rel="stylesheet"
+    />,
+  ]);
+};

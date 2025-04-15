@@ -1,18 +1,45 @@
-/**
- * Implement Gatsby's Node APIs in this file.
- *
- * See: https://www.gatsbyjs.com/docs/reference/config-files/gatsby-node/
- */
+const path = require(`path`)
+const { createFilePath } = require(`gatsby-source-filesystem`)
 
-/**
- * @type {import('gatsby').GatsbyNode['createPages']}
- */
-exports.createPages = async ({ actions }) => {
+exports.onCreateNode = ({ node, actions, getNode }) => {
+  const { createNodeField } = actions
+  if (node.internal.type === `Mdx`) {
+    const slug = createFilePath({ node, getNode, basePath: `content/blog` })
+    createNodeField({
+      node,
+      name: `slug`,
+      value: slug,
+    })
+  }
+}
+
+exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
-  createPage({
-    path: "/using-dsg",
-    component: require.resolve("./src/templates/using-dsg.js"),
-    context: {},
-    defer: true,
+  const blogPostTemplate = path.resolve(`src/templates/blog-post.js`)
+  const result = await graphql(`
+    {
+      allMdx {
+        nodes {
+          fields {
+            slug
+          }
+        }
+      }
+    }
+  `)
+
+  if (result.errors) {
+    reporter.panicOnBuild(`Error while running GraphQL query.`)
+    return
+  }
+
+  result.data.allMdx.nodes.forEach(node => {
+    createPage({
+      path: node.fields.slug,
+      component: blogPostTemplate,
+      context: {
+        slug: node.fields.slug,
+      },
+    })
   })
 }

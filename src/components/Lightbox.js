@@ -1,82 +1,82 @@
 // src/components/Lightbox.js
-import React, { useEffect } from 'react'
-import '../styles/global.css'
+import React, { useState, useEffect } from 'react'
 
 const Lightbox = () => {
+  const [isActive, setIsActive] = useState(false);
+  const [currentImage, setCurrentImage] = useState({ src: '', alt: '', caption: '' });
+  
   useEffect(() => {
-    const lightbox = document.getElementById('lightbox')
-    if (!lightbox) return
-
-    const lightboxImg = lightbox.querySelector('img')
-    const lightboxCaption = lightbox.querySelector('.lightbox-caption')
-    const lightboxClose = lightbox.querySelector('.lightbox-close')
-    const photoItems = document.querySelectorAll('.photo-card, .full')
-
-    const openLightbox = (e) => {
-      const item = e.currentTarget
-      const fullSrc = item.dataset.full
-      const alt = item.querySelector('img').alt
-      const caption = item.dataset.caption || alt
-
-      lightboxImg.src = fullSrc
-      lightboxImg.alt = alt
-      lightboxCaption.textContent = caption
-      lightbox.classList.add('active')
-      document.body.style.overflow = 'hidden'
-    }
-
-    const closeLightbox = () => {
-      lightbox.classList.remove('active')
-      document.body.style.overflow = ''
-      setTimeout(() => {
-        if (!lightbox.classList.contains('active')) {
-          lightboxImg.src = ''
-        }
-      }, 300)
-    }
-
+    // Handle setup when component mounts
+    const handlePhotoClick = (e) => {
+      const item = e.currentTarget;
+      const fullSrc = item.dataset.full;
+      const alt = item.querySelector('img').alt;
+      const caption = item.dataset.caption || alt;
+      
+      setCurrentImage({ src: fullSrc, alt, caption });
+      setIsActive(true);
+      document.body.style.overflow = 'hidden'; // Prevent scrolling when lightbox is open
+    };
+    
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape' && isActive) {
+        closeLightbox();
+      }
+    };
+    
+    // Attach event listeners
+    const photoItems = document.querySelectorAll('.photo-card, .full');
     photoItems.forEach(item => {
-      item.addEventListener('click', openLightbox)
-    })
-
-    lightboxClose.addEventListener('click', (e) => {
-      e.stopPropagation()
-      closeLightbox()
-    })
-
-    lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox) {
-        closeLightbox()
-      }
-    })
-
-    const escListener = (e) => {
-      if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-        closeLightbox()
-      }
-    }
-    document.addEventListener('keydown', escListener)
-
+      item.addEventListener('click', handlePhotoClick);
+    });
+    
+    document.addEventListener('keydown', handleEscKey);
+    
     // Cleanup on unmount
     return () => {
       photoItems.forEach(item => {
-        item.removeEventListener('click', openLightbox)
-      })
-      lightboxClose.removeEventListener('click', closeLightbox)
-      lightbox.removeEventListener('click', closeLightbox)
-      document.removeEventListener('keydown', escListener)
-    }
-  }, [])
-
+        item.removeEventListener('click', handlePhotoClick);
+      });
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [isActive]); // Re-run effect if isActive changes
+  
+  const closeLightbox = () => {
+    setIsActive(false);
+    document.body.style.overflow = ''; // Restore scrolling
+    
+    // Clear image source after animation completes
+    setTimeout(() => {
+      if (!isActive) {
+        setCurrentImage({ src: '', alt: '', caption: '' });
+      }
+    }, 300);
+  };
+  
   return (
-    <div className="lightbox" id="lightbox">
+    <div className={`lightbox ${isActive ? 'active' : ''}`} onClick={(e) => {
+      if (e.target === e.currentTarget) closeLightbox();
+    }}>
       <div className="lightbox-content">
-        <button className="lightbox-close" aria-label="Close lightbox">×</button>
-        <img src="" alt="Expanded image" />
-        <p className="lightbox-caption"></p>
+        <button 
+          className="lightbox-close" 
+          aria-label="Close lightbox"
+          onClick={(e) => {
+            e.stopPropagation();
+            closeLightbox();
+          }}
+        >
+          ×
+        </button>
+        {currentImage.src && (
+          <img src={currentImage.src} alt={currentImage.alt} />
+        )}
+        {currentImage.caption && (
+          <p className="lightbox-caption">{currentImage.caption}</p>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Lightbox
+export default Lightbox;

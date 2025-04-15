@@ -1,3 +1,4 @@
+// gatsby-node.js
 const path = require(`path`)
 const { createFilePath } = require(`gatsby-source-filesystem`)
 
@@ -20,7 +21,10 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
   // Query for MDX nodes to use in creating pages
   const result = await graphql(`
     {
-      allMdx {
+      allMdx(
+        sort: { frontmatter: { date: DESC } }
+        limit: 1000
+      ) {
         nodes {
           id
           fields {
@@ -39,19 +43,58 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     return
   }
 
+  const posts = result.data.allMdx.nodes
+
   // Create pages for each MDX file
-  result.data.allMdx.nodes.forEach(node => {
-    const { slug } = node.fields
-    const { contentFilePath } = node.internal
-    
-    createPage({
-      path: slug,
-      // The component template and contentFilePath are linked using the `?__contentFilePath` syntax
-      component: `${blogPostTemplate}?__contentFilePath=${contentFilePath}`,
-      context: {
-        id: node.id,
-        slug: slug,
-      },
+  if (posts.length > 0) {
+    posts.forEach((post, index) => {
+      const previousPostId = index === 0 ? null : posts[index - 1].id
+      const nextPostId = index === posts.length - 1 ? null : posts[index + 1].id
+      
+      const { slug } = post.fields
+      const { contentFilePath } = post.internal
+      
+      createPage({
+        path: slug,
+        // The component template and contentFilePath are linked using the `?__contentFilePath` syntax
+        component: `${blogPostTemplate}?__contentFilePath=${contentFilePath}`,
+        context: {
+          id: post.id,
+          slug: slug,
+          previousPostId,
+          nextPostId,
+        },
+      })
     })
+  }
+  
+  // Create a blog index page at /blog
+  createPage({
+    path: '/blog',
+    component: path.resolve('./src/templates/blog-list.js'),
+    context: {},
   })
+}
+
+// Add schema customization to ensure fields exist
+exports.createSchemaCustomization = ({ actions }) => {
+  const { createTypes } = actions
+
+  // Define the schema for frontmatter fields to prevent errors when fields are missing
+  createTypes(`
+    type Mdx implements Node {
+      frontmatter: Frontmatter
+      fields: Fields
+    }
+    type Frontmatter {
+      title: String!
+      date: Date @dateformat
+      description: String
+      featuredImage: File @fileByRelativePath
+      imageCaption: String
+    }
+    type Fields {
+      slug: String
+    }
+  `)
 }

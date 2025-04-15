@@ -109,8 +109,7 @@ title: "Bike Tour Blog - Isle of Skye"
 date: "2025-04-15"
 ---
 
-import PhotoGrid from '../../src/components/PhotoGrid'
-import PhotoCard from '../../src/components/PhotoCard'
+
 
 ## Photo Highlights
 
@@ -122,6 +121,93 @@ src="https://picsum.photos/id/10/400/400"
 alt="Misty morning on the mountain trails"
 />
 ...
+</PhotoGrid>
+
+More test
+
+more and more text
+```
+
+# content/blog/test-post-2.mdx
+
+```mdx
+---
+title: "Test MDX Post 3"
+date: "2025-04-15"
+---
+
+## This is a test MDX post
+
+This is a simple paragraph to test if MDX rendering is working correctly.
+
+- Item 1
+- Item 2
+- Item 3
+
+### Now let's try the PhotoGrid component
+
+<PhotoGrid>
+  <PhotoCard
+    fullSrc="https://picsum.photos/id/10/1200/1200"
+    caption="Test image caption"
+    src="https://picsum.photos/id/10/400/400"
+    alt="Test image alt text"
+  />
+   <PhotoCard
+    fullSrc="https://picsum.photos/id/10/1200/1200"
+    caption="Test image caption"
+    src="https://picsum.photos/id/10/400/400"
+    alt="Test image alt text"
+  />
+   <PhotoCard
+    fullSrc="https://picsum.photos/id/10/1200/1200"
+    caption="Test image caption"
+    src="https://picsum.photos/id/10/400/400"
+    alt="Test image alt text"
+  />
+</PhotoGrid>
+
+
+# howdy
+
+And just a PhotoCard
+
+ <PhotoCard
+    fullSrc="https://picsum.photos/id/10/1200/1200"
+    caption="Test image caption"
+    src="https://picsum.photos/id/10/400/400"
+    alt="Test image alt text"
+  />
+
+
+  Some more longer text maybe.
+```
+
+# content/blog/test-post.mdx
+
+```mdx
+---
+title: "Test MDX Post"
+date: "2025-04-15"
+---
+
+## This is a test MDX post
+
+This is a simple paragraph to test if MDX rendering is working correctly.
+
+- Item 1
+- Item 2
+- Item 3
+
+### Now let's try the PhotoGrid component
+
+<PhotoGrid>
+  <PhotoCard
+    fullSrc="https://picsum.photos/id/10/1200/1200"
+    caption="Test image caption"
+    src="https://picsum.photos/id/10/400/400"
+    alt="Test image alt text"
+  />
 </PhotoGrid>
 ```
 
@@ -152,6 +238,7 @@ export const wrapRootElement = ({ element }) => {
 # gatsby-config.js
 
 ```js
+// gatsby-config.js
 module.exports = {
   siteMetadata: {
     title: `My Gatsby Blog`,
@@ -171,10 +258,15 @@ module.exports = {
       options: {
         extensions: ['.mdx', '.md'],
         gatsbyRemarkPlugins: [
-          'gatsby-remark-images',
+          {
+            resolve: 'gatsby-remark-images',
+            options: {
+              maxWidth: 1200,
+              linkImagesToOriginal: false,
+            },
+          },
           'gatsby-remark-responsive-iframe',
         ],
-        // Add this configuration to help with MDX processing
         mdxOptions: {
           remarkPlugins: [],
           rehypePlugins: [],
@@ -209,12 +301,18 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
 exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
   const blogPostTemplate = path.resolve(`src/templates/blog-post.js`)
+  
+  // Query for MDX nodes to use in creating pages
   const result = await graphql(`
     {
       allMdx {
         nodes {
+          id
           fields {
             slug
+          }
+          internal {
+            contentFilePath
           }
         }
       }
@@ -226,25 +324,49 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     return
   }
 
+  // Create pages for each MDX file
   result.data.allMdx.nodes.forEach(node => {
+    const { slug } = node.fields
+    const { contentFilePath } = node.internal
+    
     createPage({
-      path: node.fields.slug,
-      component: blogPostTemplate,
+      path: slug,
+      // The component template and contentFilePath are linked using the `?__contentFilePath` syntax
+      component: `${blogPostTemplate}?__contentFilePath=${contentFilePath}`,
       context: {
-        slug: node.fields.slug,
+        id: node.id,
+        slug: slug,
       },
     })
   })
 }
-
 ```
 
 # gatsby-ssr.js
 
 ```js
 // gatsby-ssr.js
-import React from 'react';
+import { MDXProvider } from '@mdx-js/react'
+import React from 'react'
+import './src/styles/global.css'
+import PhotoCard from './src/components/PhotoCard'
+import PhotoGrid from './src/components/PhotoGrid'
 
+// Make components available to MDX files - mirror of gatsby-browser.js
+export const wrapRootElement = ({ element }) => {
+  return React.createElement(
+    MDXProvider,
+    {
+      components: {
+        PhotoCard,
+        PhotoGrid
+      }
+    },
+    element
+  )
+}
+
+// Keep your existing onRenderBody export
 export const onRenderBody = ({ setHeadComponents }) => {
   setHeadComponents([
     <link
@@ -265,7 +387,6 @@ export const onRenderBody = ({ setHeadComponents }) => {
     />,
   ]);
 };
-
 ```
 
 # package.json
@@ -970,7 +1091,7 @@ This is a binary file of the type: Image
 ```js
 import * as React from "react"
 
-import Layout from "../components/layout"
+import Layout from "../components/Layout"
 import Seo from "../components/seo"
 
 const NotFoundPage = () => (
@@ -993,7 +1114,7 @@ import * as React from "react"
 import { Link } from "gatsby"
 import { StaticImage } from "gatsby-plugin-image"
 
-import Layout from "../components/layout"
+import Layout from "../components/Layout"
 import Seo from "../components/seo"
 import * as styles from "../components/index.module.css"
 
@@ -1126,7 +1247,7 @@ export default IndexPage
 import * as React from "react"
 import { Link } from "gatsby"
 
-import Layout from "../components/layout"
+import Layout from "../components/Layout"
 import Seo from "../components/seo"
 
 const SecondPage = () => (
@@ -1149,7 +1270,7 @@ export default SecondPage
 import * as React from "react"
 import { Link } from "gatsby"
 
-import Layout from "../components/layout"
+import Layout from "../components/Layout"
 import Seo from "../components/seo"
 
 const UsingSSR = ({ serverData }) => {
@@ -1211,7 +1332,7 @@ export async function getServerData() {
 import * as React from "react"
 import { PageProps, Link, graphql, HeadFC } from "gatsby"
 
-import Layout from "../components/layout"
+import Layout from "../components/Layout"
 import Seo from "../components/seo"
 
 type DataProps = {
@@ -1544,7 +1665,7 @@ import Layout from '../components/layout'
 import '../styles/blog.css'
 import '../styles/global.css'
 
-// This version works with gatsby-plugin-mdx v4+ which uses MDX v2
+// This template works with gatsby-plugin-mdx v5+ which uses MDX v2
 export default function BlogPost({ data, children }) {
   const post = data.mdx
   return (
@@ -1555,7 +1676,7 @@ export default function BlogPost({ data, children }) {
           <p className="post-meta">{post.frontmatter.date}</p>
         </header>
         <section className="post-content">
-          {/* In newer versions of gatsby-plugin-mdx, the rendered content is passed as children */}
+          {/* The MDX content is now passed as children */}
           {children}
         </section>
       </article>
@@ -1563,9 +1684,9 @@ export default function BlogPost({ data, children }) {
   )
 }
 
-export const pageQuery = graphql`
-  query BlogPostBySlug($slug: String!) {
-    mdx(fields: { slug: { eq: $slug } }) {
+export const query = graphql`
+  query($id: String!) {
+    mdx(id: { eq: $id }) {
       frontmatter {
         title
         date(formatString: "MMMM DD, YYYY")
@@ -1581,7 +1702,7 @@ export const pageQuery = graphql`
 import * as React from "react"
 import { Link } from "gatsby"
 
-import Layout from "../components/layout"
+import Layout from "../components/Layout"
 import Seo from "../components/seo"
 
 const UsingDSG = () => (

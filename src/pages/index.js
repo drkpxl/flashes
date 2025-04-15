@@ -1,128 +1,215 @@
-import * as React from "react"
-import { Link } from "gatsby"
-import { StaticImage } from "gatsby-plugin-image"
+// src/pages/index.js
+import React from 'react'
+import { graphql, Link } from 'gatsby'
+import { GatsbyImage, getImage, StaticImage } from 'gatsby-plugin-image'
+import '../styles/home.css'
 
-import Layout from "../components/layout"
-import Seo from "../components/seo"
-import * as styles from "../components/index.module.css"
+// Import components
+import Layout from '../components/Layout'
+import PhotoGrid from '../components/PhotoGrid'
 
-const links = [
-  {
-    text: "Tutorial",
-    url: "https://www.gatsbyjs.com/docs/tutorial",
-    description:
-      "A great place to get started if you're new to web development. Designed to guide you through setting up your first Gatsby site.",
-  },
-  {
-    text: "Examples",
-    url: "https://github.com/gatsbyjs/gatsby/tree/master/examples",
-    description:
-      "A collection of websites ranging from very basic to complex/complete that illustrate how to accomplish specific tasks within your Gatsby sites.",
-  },
-  {
-    text: "Plugin Library",
-    url: "https://www.gatsbyjs.com/plugins",
-    description:
-      "Learn how to add functionality and customize your Gatsby site or app with thousands of plugins built by our amazing developer community.",
-  },
-  {
-    text: "Build and Host",
-    url: "https://www.gatsbyjs.com/cloud",
-    description:
-      "Now you’re ready to show the world! Give your Gatsby site superpowers: Build and host on Gatsby Cloud. Get started for free!",
-  },
-]
+const HomePage = ({ data }) => {
+  const posts = data.allMdx.nodes;
+  
+  return (
+    <Layout 
+      pageTitle="Home"
+      // No header text needed as we'll customize the header in this component
+      customHeader={true}
+    >
+      {/* Hero Section */}
+      <section className="hero">
+        <div className="hero-content">
+          <h1>Isle of Skye on 2 Wheels</h1>
+          <p className="tagline">Capturing Scotland's breathtaking landscapes through the lens of a cyclist</p>
+          <div className="hero-cta">
+            <a href="#gallery" className="btn btn-primary">View Gallery</a>
+            <a href="#about" className="btn btn-secondary">About Me</a>
+          </div>
+        </div>
+      </section>
 
-const samplePageLinks = [
-  {
-    text: "Page 2",
-    url: "page-2",
-    badge: false,
-    description:
-      "A simple example of linking to another page within a Gatsby site",
-  },
-  { text: "TypeScript", url: "using-typescript" },
-  { text: "Server Side Rendering", url: "using-ssr" },
-  { text: "Deferred Static Generation", url: "using-dsg" },
-]
+      {/* About Section */}
+      <section id="about" className="about-section">
+        <div className="about-container">
+          <div className="about-image">
+            <StaticImage
+              src="../images/example.png"
+              alt="Photographer on a bike"
+              placeholder="blurred"
+              layout="constrained"
+              width={400}
+              height={500}
+              className="profile-image"
+            />
+          </div>
+          <div className="about-content">
+            <h2>About Me</h2>
+            <p>
+              Hello! I'm a photographer and cycling enthusiast with a passion for capturing the raw beauty of Scotland's landscapes. 
+              My journey began five years ago when I first visited the Isle of Skye with nothing but my camera and bicycle.
+            </p>
+            <p>
+              What started as a personal adventure has evolved into a mission to document the incredible 
+              terrain, weather, and light that make Scotland's landscapes so unique and mesmerizing.
+            </p>
+            <p>
+              Through my lens, I hope to inspire others to explore these magnificent places and develop 
+              a deeper appreciation for our natural world.
+            </p>
+          </div>
+        </div>
+      </section>
 
-const moreLinks = [
-  { text: "Join us on Discord", url: "https://gatsby.dev/discord" },
-  {
-    text: "Documentation",
-    url: "https://gatsbyjs.com/docs/",
-  },
-  {
-    text: "Starters",
-    url: "https://gatsbyjs.com/starters/",
-  },
-  {
-    text: "Showcase",
-    url: "https://gatsbyjs.com/showcase/",
-  },
-  {
-    text: "Contributing",
-    url: "https://www.gatsbyjs.com/contributing/",
-  },
-  { text: "Issues", url: "https://github.com/gatsbyjs/gatsby/issues" },
-]
+      {/* Featured Gallery */}
+      <section id="gallery" className="gallery-section">
+        <h2>Featured Photography</h2>
+        <p className="section-intro">
+          A selection of my favorite shots from recent cycling expeditions across the Isle of Skye.
+        </p>
+        
+        <PhotoGrid columns="auto-fill" minWidth="280px">
+          {/* Replace these with your actual images */}
+          <div className="photo-card" data-full="https://picsum.photos/id/10/1200/1200" data-caption="Misty mountain pass near Quiraing">
+            <img src="https://picsum.photos/id/10/400/400" alt="Misty mountain pass" loading="lazy" />
+          </div>
+          <div className="photo-card" data-full="https://picsum.photos/id/11/1200/1200" data-caption="Dawn at the Old Man of Storr">
+            <img src="https://picsum.photos/id/11/400/400" alt="Dawn at Storr" loading="lazy" />
+          </div>
+          <div className="photo-card" data-full="https://picsum.photos/id/12/1200/1200" data-caption="Coastal road to Neist Point">
+            <img src="https://picsum.photos/id/12/400/400" alt="Coastal road" loading="lazy" />
+          </div>
+          <div className="photo-card" data-full="https://picsum.photos/id/13/1200/1200" data-caption="Fairy Pools under dramatic skies">
+            <img src="https://picsum.photos/id/13/400/400" alt="Fairy Pools" loading="lazy" />
+          </div>
+          <div className="photo-card" data-full="https://picsum.photos/id/14/1200/1200" data-caption="Evening light at Elgol Beach">
+            <img src="https://picsum.photos/id/14/400/400" alt="Elgol Beach" loading="lazy" />
+          </div>
+          <div className="photo-card" data-full="https://picsum.photos/id/15/1200/1200" data-caption="Mountain biking trail through Glen Sligachan">
+            <img src="https://picsum.photos/id/15/400/400" alt="Mountain biking trail" loading="lazy" />
+          </div>
+        </PhotoGrid>
+        
+        <div className="gallery-cta">
+          <a href="#" className="btn btn-primary">View Full Gallery</a>
+        </div>
+      </section>
 
-const utmParameters = `?utm_source=starter&utm_medium=start-page&utm_campaign=default-starter`
+      {/* Latest Adventures (Blog) */}
+      <section id="blog" className="blog-section">
+        <h2>Latest Adventures</h2>
+        <p className="section-intro">
+          Stories, tips, and experiences from my cycling photography expeditions.
+        </p>
+        
+        <div className="blog-grid">
+          {posts.map(post => {
+            const featuredImage = post.frontmatter.featuredImage 
+              ? getImage(post.frontmatter.featuredImage) 
+              : null;
+            
+            return (
+              <article key={post.id} className="blog-card">
+                <Link to={post.fields.slug} className="blog-link">
+                  {featuredImage ? (
+                    <div className="blog-image">
+                      <GatsbyImage
+                        image={featuredImage}
+                        alt={post.frontmatter.title}
+                      />
+                    </div>
+                  ) : (
+                    <div className="blog-image blog-image-placeholder">
+                      <div className="placeholder-text">Read Story</div>
+                    </div>
+                  )}
+                  <div className="blog-content">
+                    <h3>{post.frontmatter.title}</h3>
+                    <p className="blog-date">{post.frontmatter.date}</p>
+                    <p className="blog-excerpt">
+                      {post.frontmatter.description || post.excerpt}
+                    </p>
+                  </div>
+                </Link>
+              </article>
+            );
+          })}
+        </div>
+        
+        {posts.length > 3 && (
+          <div className="blog-cta">
+            <Link to="/archive" className="btn btn-secondary">View All Posts</Link>
+          </div>
+        )}
+      </section>
 
-const IndexPage = () => (
-  <Layout>
-    <div className={styles.textCenter}>
-      <StaticImage
-        src="../images/example.png"
-        loading="eager"
-        width={64}
-        quality={95}
-        formats={["auto", "webp", "avif"]}
-        alt=""
-        style={{ marginBottom: `var(--space-3)` }}
-      />
-      <h1>
-        Welcome to <b>Gatsby!</b>
-      </h1>
-      <p className={styles.intro}>
-        <b>Example pages:</b>{" "}
-        {samplePageLinks.map((link, i) => (
-          <React.Fragment key={link.url}>
-            <Link to={link.url}>{link.text}</Link>
-            {i !== samplePageLinks.length - 1 && <> · </>}
-          </React.Fragment>
-        ))}
-        <br />
-        Edit <code>src/pages/index.js</code> to update this page.
-      </p>
-    </div>
-    <ul className={styles.list}>
-      {links.map(link => (
-        <li key={link.url} className={styles.listItem}>
-          <a
-            className={styles.listItemLink}
-            href={`${link.url}${utmParameters}`}
-          >
-            {link.text} ↗
-          </a>
-          <p className={styles.listItemDescription}>{link.description}</p>
-        </li>
-      ))}
-    </ul>
-    {moreLinks.map((link, i) => (
-      <React.Fragment key={link.url}>
-        <a href={`${link.url}${utmParameters}`}>{link.text}</a>
-        {i !== moreLinks.length - 1 && <> · </>}
-      </React.Fragment>
-    ))}
-  </Layout>
-)
+      {/* Contact Section */}
+      <section id="contact" className="contact-section">
+        <h2>Get In Touch</h2>
+        <p className="section-intro">
+          Interested in prints, collaborations, or just want to say hello? Drop me a message!
+        </p>
+        
+        <div className="contact-container">
+          <div className="contact-info">
+            <div className="contact-item">
+              <h3>Email</h3>
+              <p>hello@isleofskye2wheels.com</p>
+            </div>
+            <div className="contact-item">
+              <h3>Social</h3>
+              <div className="social-links">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer">YouTube</a>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
+              </div>
+            </div>
+            <div className="contact-item">
+              <h3>Newsletter</h3>
+              <p>Subscribe to receive updates on new adventures and photography.</p>
+              <form className="newsletter-form">
+                <input type="email" placeholder="Your email address" required />
+                <button type="submit" className="btn btn-primary">Subscribe</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+};
 
-/**
- * Head export to define metadata for the page
- *
- * See: https://www.gatsbyjs.com/docs/reference/built-in-components/gatsby-head/
- */
-export const Head = () => <Seo title="Home" />
+export const query = graphql`
+  query {
+    allMdx(
+      sort: { frontmatter: { date: DESC } }
+      limit: 3
+    ) {
+      nodes {
+        id
+        excerpt(pruneLength: 120)
+        fields {
+          slug
+        }
+        frontmatter {
+          title
+          date(formatString: "MMMM DD, YYYY")
+          description
+          featuredImage {
+            childImageSharp {
+              gatsbyImageData(
+                width: 600
+                height: 400
+                placeholder: BLURRED
+                transformOptions: { cropFocus: CENTER }
+                formats: [AUTO, WEBP, AVIF]
+              )
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
-export default IndexPage
+export default HomePage;

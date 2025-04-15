@@ -1,3 +1,106 @@
+# .github/workflows/gatsby.yml
+
+```yml
+# Sample workflow for building and deploying a Gatsby site to GitHub Pages
+#
+# To get started with Gatsby see: https://www.gatsbyjs.com/docs/quick-start/
+#
+name: Deploy Gatsby site to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["master"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# Default to bash
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Detect package manager
+        id: detect-package-manager
+        run: |
+          if [ -f "${{ github.workspace }}/yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+            echo "command=install" >> $GITHUB_OUTPUT
+            exit 0
+          elif [ -f "${{ github.workspace }}/package.json" ]; then
+            echo "manager=npm" >> $GITHUB_OUTPUT
+            echo "command=ci" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "Unable to determine package manager"
+            exit 1
+          fi
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: ${{ steps.detect-package-manager.outputs.manager }}
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+        with:
+          # Automatically inject pathPrefix in your Gatsby configuration file.
+          #
+          # You may remove this line if you want to manage the configuration yourself.
+          static_site_generator: gatsby
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            public
+            .cache
+          key: ${{ runner.os }}-gatsby-build-${{ hashFiles('public') }}
+          restore-keys: |
+            ${{ runner.os }}-gatsby-build-
+      - name: Install dependencies
+        run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Build with Gatsby
+        env:
+          PREFIX_PATHS: 'true'
+        run: ${{ steps.detect-package-manager.outputs.manager }} run build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+```
+
 # content/blog/2025-04-15-bike-tour.mdx
 
 ```mdx
@@ -6,14 +109,10 @@ title: "Bike Tour Blog - Isle of Skye"
 date: "2025-04-15"
 ---
 
-import PhotoGrid from '../components/PhotoGrid'
-
+import PhotoGrid from '../../src/components/PhotoGrid'
+import PhotoCard from '../../src/components/PhotoCard'
 
 ## Photo Highlights
-test 
-test
-test
-
 
 <PhotoGrid>
   <PhotoCard 
@@ -22,30 +121,55 @@ test
     src="https://picsum.photos/id/10/400/400" 
     alt="Misty morning on the mountain trails" 
   />
-  {/* Add more PhotoCard components as needed */}
+  <PhotoCard 
+    fullSrc="https://picsum.photos/id/16/1200/1200"
+    caption="Traditional stone cottage among green hills"
+    src="https://picsum.photos/id/16/400/400" 
+    alt="Traditional stone cottage among green hills" 
+  />
+  <PhotoCard 
+    fullSrc="https://picsum.photos/id/65/1200/1200"
+    caption="Rocky coastline with crashing waves"
+    src="https://picsum.photos/id/65/400/400" 
+    alt="Rocky coastline with crashing waves" 
+  />
 </PhotoGrid>
 
 ## Hard, Wet, Cold
 
-Our trip started with unforgiving weather, soaked gear, and freezing fingers. [Write your story here...]
+Our trip started with unforgiving weather, soaked gear, and freezing fingers. But spirits stayed high as we pedaled through fog and wind, discovering hidden gems that only reveal themselves to those willing to brave the elements.
 ```
 
 # gatsby-browser.js
 
 ```js
-/**
- * Implement Gatsby's Browser APIs in this file.
- *
- * See: https://www.gatsbyjs.com/docs/reference/config-files/gatsby-browser/
- */
+import { MDXProvider } from '@mdx-js/react'
 
-// You can delete this file if you're not using it
+import React from 'react'
+import './src/styles/global.css'
+import PhotoCard from './src/components/PhotoCard'
+import PhotoGrid from './src/components/PhotoGrid'
 
+// Make components available to MDX files
+export const wrapRootElement = ({ element }) => {
+  return React.createElement(
+    MDXProvider,
+    {
+      components: {
+        PhotoCard,
+        PhotoGrid
+      }
+    },
+    element
+  )
+}
 ```
 
 # gatsby-config.js
 
 ```js
+const path = require('path')
+
 module.exports = {
   siteMetadata: {
     title: `My Gatsby Blog`,
@@ -67,7 +191,8 @@ module.exports = {
         gatsbyRemarkPlugins: [
           'gatsby-remark-images',
           'gatsby-remark-responsive-iframe',
-        ]
+        ],
+       
       }
     },
     'gatsby-plugin-image',

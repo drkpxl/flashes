@@ -1,6 +1,10 @@
+// src/templates/blog-post.js
 import React from 'react'
 import { graphql } from 'gatsby'
+import { MDXProvider } from '@mdx-js/react'
 import Layout from '../components/layout'
+import PhotoCard from '../components/PhotoCard'
+import PhotoGrid from '../components/PhotoGrid'
 import '../styles/blog.css'
 import '../styles/global.css'
 
@@ -14,7 +18,15 @@ export default function BlogPost({ data, children }) {
           <p className="post-meta">{post.frontmatter.date}</p>
         </header>
         <section className="post-content">
-          {children}
+          {/* This is where the MDX content will be rendered */}
+          <MDXProvider
+            components={{
+              PhotoCard,
+              PhotoGrid
+            }}
+          >
+            {children}
+          </MDXProvider>
         </section>
       </article>
     </Layout>

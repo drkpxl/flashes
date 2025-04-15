@@ -5,7 +5,7 @@ import Layout from '../components/layout'
 import '../styles/blog.css'
 import '../styles/global.css'
 
-// This version works with gatsby-plugin-mdx v4+ which uses MDX v2
+// This template works with gatsby-plugin-mdx v5+ which uses MDX v2
 export default function BlogPost({ data, children }) {
   const post = data.mdx
   return (
@@ -16,7 +16,7 @@ export default function BlogPost({ data, children }) {
           <p className="post-meta">{post.frontmatter.date}</p>
         </header>
         <section className="post-content">
-          {/* In newer versions of gatsby-plugin-mdx, the rendered content is passed as children */}
+          {/* The MDX content is now passed as children */}
           {children}
         </section>
       </article>
@@ -24,9 +24,9 @@ export default function BlogPost({ data, children }) {
   )
 }
 
-export const pageQuery = graphql`
-  query BlogPostBySlug($slug: String!) {
-    mdx(fields: { slug: { eq: $slug } }) {
+export const query = graphql`
+  query($id: String!) {
+    mdx(id: { eq: $id }) {
       frontmatter {
         title
         date(formatString: "MMMM DD, YYYY")

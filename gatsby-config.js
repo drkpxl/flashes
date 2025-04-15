@@ -1,3 +1,4 @@
+// gatsby-config.js
 module.exports = {
   siteMetadata: {
     title: `My Gatsby Blog`,
@@ -17,10 +18,15 @@ module.exports = {
       options: {
         extensions: ['.mdx', '.md'],
         gatsbyRemarkPlugins: [
-          'gatsby-remark-images',
+          {
+            resolve: 'gatsby-remark-images',
+            options: {
+              maxWidth: 1200,
+              linkImagesToOriginal: false,
+            },
+          },
           'gatsby-remark-responsive-iframe',
         ],
-        // Add this configuration to help with MDX processing
         mdxOptions: {
           remarkPlugins: [],
           rehypePlugins: [],

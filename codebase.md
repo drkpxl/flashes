@@ -115,36 +115,20 @@ import PhotoCard from '../../src/components/PhotoCard'
 ## Photo Highlights
 
 <PhotoGrid>
-  <PhotoCard 
-    fullSrc="https://picsum.photos/id/10/1200/1200" 
-    caption="Misty morning on the mountain trails"
-    src="https://picsum.photos/id/10/400/400" 
-    alt="Misty morning on the mountain trails" 
-  />
-  <PhotoCard 
-    fullSrc="https://picsum.photos/id/16/1200/1200"
-    caption="Traditional stone cottage among green hills"
-    src="https://picsum.photos/id/16/400/400" 
-    alt="Traditional stone cottage among green hills" 
-  />
-  <PhotoCard 
-    fullSrc="https://picsum.photos/id/65/1200/1200"
-    caption="Rocky coastline with crashing waves"
-    src="https://picsum.photos/id/65/400/400" 
-    alt="Rocky coastline with crashing waves" 
-  />
+<PhotoCard
+fullSrc="https://picsum.photos/id/10/1200/1200"
+caption="Misty morning on the mountain trails"
+src="https://picsum.photos/id/10/400/400"
+alt="Misty morning on the mountain trails"
+/>
+...
 </PhotoGrid>
-
-## Hard, Wet, Cold
-
-Our trip started with unforgiving weather, soaked gear, and freezing fingers. But spirits stayed high as we pedaled through fog and wind, discovering hidden gems that only reveal themselves to those willing to brave the elements.
 ```
 
 # gatsby-browser.js
 
 ```js
 import { MDXProvider } from '@mdx-js/react'
-
 import React from 'react'
 import './src/styles/global.css'
 import PhotoCard from './src/components/PhotoCard'
@@ -168,8 +152,6 @@ export const wrapRootElement = ({ element }) => {
 # gatsby-config.js
 
 ```js
-const path = require('path')
-
 module.exports = {
   siteMetadata: {
     title: `My Gatsby Blog`,
@@ -192,7 +174,11 @@ module.exports = {
           'gatsby-remark-images',
           'gatsby-remark-responsive-iframe',
         ],
-       
+        // Add this configuration to help with MDX processing
+        mdxOptions: {
+          remarkPlugins: [],
+          rehypePlugins: [],
+        },
       }
     },
     'gatsby-plugin-image',
@@ -279,6 +265,55 @@ export const onRenderBody = ({ setHeadComponents }) => {
     />,
   ]);
 };
+
+```
+
+# package.json
+
+```json
+{
+  "name": "gatsby-starter-default",
+  "private": true,
+  "description": "A simple starter to get up and developing quickly with Gatsby",
+  "version": "0.1.0",
+  "author": "Kyle Mathews <mathews.kyle@gmail.com>",
+  "dependencies": {
+    "@mdx-js/react": "^2.3.0",
+    "gatsby": "^5.13.0",
+    "gatsby-plugin-image": "^3.14.0",
+    "gatsby-plugin-mdx": "^5.13.0",
+    "gatsby-plugin-sharp": "^5.14.0",
+    "gatsby-remark-images": "^7.14.0",
+    "gatsby-remark-responsive-iframe": "^6.14.0",
+    "gatsby-source-filesystem": "^5.14.0",
+    "gatsby-transformer-sharp": "^5.14.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
+  },
+  "keywords": [
+    "gatsby"
+  ],
+  "license": "0BSD",
+  "scripts": {
+    "build": "gatsby build",
+    "develop": "gatsby develop",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,css}\"",
+    "start": "gatsby develop",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gatsbyjs/gatsby-starter-default"
+  },
+  "bugs": {
+    "url": "https://github.com/gatsbyjs/gatsby/issues"
+  }
+}
 
 ```
 
@@ -844,15 +879,16 @@ export default Lightbox
 # src/components/PhotoCard.js
 
 ```js
-// src/components/PhotoCard.js
 import React from 'react'
-const PhotoCard = ({ fullSrc, caption, src, alt }) => (
-  <div className="photo-card" data-full={fullSrc} data-caption={caption}>
-    <img src={src} alt={alt} loading="lazy" />
-  </div>
-)
+const PhotoCard = ({ fullSrc, caption, src, alt }) => {
+  console.log('PhotoCard rendering with:', { fullSrc, caption, src, alt });
+  return (
+    <div className="photo-card" data-full={fullSrc} data-caption={caption}>
+      <img src={src} alt={alt || caption} loading="lazy" />
+    </div>
+  )
+}
 export default PhotoCard
-
 ```
 
 # src/components/PhotoGrid.js
@@ -1501,12 +1537,14 @@ export const query = graphql`
 # src/templates/blog-post.js
 
 ```js
+// src/templates/blog-post.js
 import React from 'react'
 import { graphql } from 'gatsby'
 import Layout from '../components/layout'
 import '../styles/blog.css'
 import '../styles/global.css'
 
+// This version works with gatsby-plugin-mdx v4+ which uses MDX v2
 export default function BlogPost({ data, children }) {
   const post = data.mdx
   return (
@@ -1517,6 +1555,7 @@ export default function BlogPost({ data, children }) {
           <p className="post-meta">{post.frontmatter.date}</p>
         </header>
         <section className="post-content">
+          {/* In newer versions of gatsby-plugin-mdx, the rendered content is passed as children */}
           {children}
         </section>
       </article>

@@ -16,12 +16,18 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
 exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions
   const blogPostTemplate = path.resolve(`src/templates/blog-post.js`)
+  
+  // Query for MDX nodes to use in creating pages
   const result = await graphql(`
     {
       allMdx {
         nodes {
+          id
           fields {
             slug
+          }
+          internal {
+            contentFilePath
           }
         }
       }
@@ -33,12 +39,18 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     return
   }
 
+  // Create pages for each MDX file
   result.data.allMdx.nodes.forEach(node => {
+    const { slug } = node.fields
+    const { contentFilePath } = node.internal
+    
     createPage({
-      path: node.fields.slug,
-      component: blogPostTemplate,
+      path: slug,
+      // The component template and contentFilePath are linked using the `?__contentFilePath` syntax
+      component: `${blogPostTemplate}?__contentFilePath=${contentFilePath}`,
       context: {
-        slug: node.fields.slug,
+        id: node.id,
+        slug: slug,
       },
     })
   })

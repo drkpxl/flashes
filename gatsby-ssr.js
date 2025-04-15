@@ -1,6 +1,25 @@
 // gatsby-ssr.js
-import React from 'react';
+import { MDXProvider } from '@mdx-js/react'
+import React from 'react'
+import './src/styles/global.css'
+import PhotoCard from './src/components/PhotoCard'
+import PhotoGrid from './src/components/PhotoGrid'
 
+// Make components available to MDX files - mirror of gatsby-browser.js
+export const wrapRootElement = ({ element }) => {
+  return React.createElement(
+    MDXProvider,
+    {
+      components: {
+        PhotoCard,
+        PhotoGrid
+      }
+    },
+    element
+  )
+}
+
+// Keep your existing onRenderBody export
 export const onRenderBody = ({ setHeadComponents }) => {
   setHeadComponents([
     <link

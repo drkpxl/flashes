@@ -1,5 +1,3 @@
-const path = require('path')
-
 module.exports = {
   siteMetadata: {
     title: `My Gatsby Blog`,
@@ -22,7 +20,11 @@ module.exports = {
           'gatsby-remark-images',
           'gatsby-remark-responsive-iframe',
         ],
-       
+        // Add this configuration to help with MDX processing
+        mdxOptions: {
+          remarkPlugins: [],
+          rehypePlugins: [],
+        },
       }
     },
     'gatsby-plugin-image',

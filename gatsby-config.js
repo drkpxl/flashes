@@ -22,10 +22,7 @@ module.exports = {
           'gatsby-remark-images',
           'gatsby-remark-responsive-iframe',
         ],
-        // Add this section
-        defaultLayouts: {
-          default: path.resolve('./src/templates/blog-post.js'),
-        },
+       
       }
     },
     'gatsby-plugin-image',

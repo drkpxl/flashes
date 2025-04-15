@@ -20,7 +20,7 @@ const HomePage = ({ data }) => {
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
-          <h1>Isle of Skye on 2 Wheels</h1>
+          <h1>Flashes</h1>
           <p className="tagline">Capturing Scotland's breathtaking landscapes through the lens of a cyclist</p>
           <div className="hero-cta">
             <a href="#gallery" className="btn btn-primary">View Gallery</a>

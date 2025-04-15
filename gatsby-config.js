@@ -1,9 +1,9 @@
 // gatsby-config.js
 module.exports = {
   siteMetadata: {
-    title: `Isle of Skye on 2 Wheels`,
-    description: `A photographic journey through Scotland's most breathtaking landscapes`,
-    author: `@yourhandle`,
+    title: `Flashes`,
+    description: `Journey's around the world`,
+    author: `@drkpxl`,
     siteUrl: `https://yourusername.github.io/your-repo-name`, // Update this for proper SEO
   },
   plugins: [
@@ -60,7 +60,7 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-manifest',
       options: {
-        name: `Isle of Skye on 2 Wheels`,
+        name: `Flashes`,
         short_name: `Skye Biking`,
         start_url: `/`,
         background_color: `#ffffff`,

@@ -17,10 +17,7 @@ export default function BlogPost({ data, children }) {
       headerImage={featuredImage ? featuredImage.images.fallback.src : null}
     >
       <article>
-        <header className="post-header">
-          <h1>{post.frontmatter.title}</h1>
-          <p className="post-meta">{post.frontmatter.date}</p>
-        </header>
+      
         
         {/* If there's a featured image, display it prominently */}
         {featuredImage && (
